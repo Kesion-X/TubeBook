@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -111,6 +113,9 @@ public class InitServlet extends HttpServlet implements SocketListener {
 	public void haveClientConnectioned(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("have client link");
+		ByteBuffer buf = ByteBuffer.allocate(1024);
+		
+		SocketManager.getSocketManager().sendDataToClientSocket(Charset.forName("utf-8").encode("key"), socket);
 	}
 
 	@Override
