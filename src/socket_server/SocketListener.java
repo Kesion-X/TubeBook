@@ -4,14 +4,19 @@ import java.net.Socket;
 
 public interface SocketListener {
 	
-	public void HaveClientConnectioned(Socket socket);
+	public void haveClientConnectioned(Socket socket);
 
-	public void HaveClientReading(Socket socket);
+	public void haveClientReading(Socket socket);
 	
-	public void HaveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes);
+	public void haveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes);
 	
-	public void HaveClientReadTimeOut(Socket socket);
+	public void haveClientReadTimeOut(Socket socket);
 	
-	public void HaveClientDisConnection(Socket socket);
+	public void haveClientDisConnection(Socket socket);
 	
+	public void serverWriteDataing(Socket socket);
+	
+	public void serverWriteDataComplete(Socket socket);
+	
+	public void serverWriteDataError(Socket socket, String err);
 }

@@ -108,19 +108,19 @@ public class InitServlet extends HttpServlet implements SocketListener {
 	}
 
 	@Override
-	public void HaveClientConnectioned(Socket socket) {
+	public void haveClientConnectioned(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("have client link");
 	}
 
 	@Override
-	public void HaveClientReading(Socket socket) {
+	public void haveClientReading(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("client reading");
 	}
 
 	@Override
-	public void HaveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes) {
+	public void haveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes) {
 		// TODO Auto-generated method stub
 		try {
 			String headstr = new String(headBytes,"utf-8");
@@ -133,15 +133,33 @@ public class InitServlet extends HttpServlet implements SocketListener {
 	}
 
 	@Override
-	public void HaveClientReadTimeOut(Socket socket) {
+	public void haveClientReadTimeOut(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("ClientReadTimeOut");
 	}
 
 	@Override
-	public void HaveClientDisConnection(Socket socket) {
+	public void haveClientDisConnection(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("ClientDisConnection");
+	}
+
+	@Override
+	public void serverWriteDataing(Socket socket) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataing");
+	}
+
+	@Override
+	public void serverWriteDataComplete(Socket socket) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataComplete");
+	}
+
+	@Override
+	public void serverWriteDataError(Socket socket, String err) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataError");
 	}
 
 }
