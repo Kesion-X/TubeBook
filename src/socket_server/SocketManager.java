@@ -96,7 +96,7 @@ public class SocketManager implements RequestDataReadListener{
 			            //设置超时
 			            sc.socket().setSoTimeout(this.socketConfigurationModel.getTimeOut());
 			            // 将该SocketChannel注册到selector
-			            sc.register(selector, SelectionKey.OP_READ);
+			            sc.register(selector, SelectionKey.OP_READ|SelectionKey.OP_WRITE);
 			           // System.out.println("client link"+sc.socket().getInetAddress().getHostAddress()+" "+sc.socket().getPort() );
 			            
 			            this.addClient(sc.socket(), new RequestDataManager(sc.socket()));//保存客户socket
@@ -153,9 +153,9 @@ public class SocketManager implements RequestDataReadListener{
 			            	if( io instanceof SocketTimeoutException ){//----------------------------------读取超时
 			            		this.listenerReadDataTimeOut(sc.socket());
 			                }else{
-			                	this.listenerDisConnection(sc.socket());
-			                	this.clientMap.get(sc.socket()).close();//关掉监听
-				            	this.removeClient(sc.socket());//移除用户------------------------------------连接断开
+			                	this.listenerDisConnection(sc.socket());//------------------------------------连接断开
+			                	this.clientMap.get(sc.socket()).close();//关掉监听,消除requestDataManager
+				            	this.removeClient(sc.socket());//移除用户
 				            	sk.cancel();
 				                if (sk.channel() != null) {
 				                	//System.out.println("close");
@@ -163,27 +163,11 @@ public class SocketManager implements RequestDataReadListener{
 				                }
 			                }
 			            }
-			            
-			            
-			            
-			            
-			            // 如果content的长度大于0,则连天信息不为空
-			            
-			                // 遍历selector里注册的所有SelectionKey
-			                for (SelectionKey key : selector.keys()) {
-			                    // 获取该key对应的Channel
-			                    Channel targerChannel = key.channel();
-			                    // 如果该Channel是SocketChannel对象
-			                    if (targerChannel instanceof SocketChannel) {
-			                        // 将读取到的内容写入该Channel中
-			                        SocketChannel dest = (SocketChannel) targerChannel;
-			                        dest.write(this.socketConfigurationModel.getCharseSet().encode("收到数据"));
-			                    }
-			                }
-			            
+			            			            
+			            sendDataToClientSocket(this.socketConfigurationModel.getCharseSet().encode("收到数据"), sc.socket());
 			            
 			        }//channel read end
-			        
+			      
 			        
 			    }//socketkey for end
 			    
@@ -199,7 +183,43 @@ public class SocketManager implements RequestDataReadListener{
 			e.printStackTrace();
 		}
     }
-
+    
+    
+    public void sendDataToClientSocket(ByteBuffer buf, Socket socket){
+    
+    	SocketChannel channel =  socket.getChannel();
+    	boolean isWriteComplete = true;
+        while (buf.hasRemaining()) {
+        	try {
+        		channel.write(buf);
+        		this.listenerServerWriteDataing(socket);
+			} catch (IOException e) {
+				e.printStackTrace();
+				isWriteComplete = false;
+				this.listenerServerWriteDataError(socket, e.getMessage());
+			}
+        }
+        if(isWriteComplete){
+        	this.listenerServerWriteDataComplete(socket);
+        }
+        buf.clear();
+    }
+    
+    /**
+     * 监听socket数据传输
+     * @param socketListener
+     */
+    public void addSocketListener(SocketListener socketListener){
+    	this.socketListener = socketListener;
+    }
+    
+    /**
+     * 移除数据监听
+     */
+    public void removeSocketListener(){
+    	this.socketListener = null;
+    }
+    
     /**
      * 增加一个用户
      * @param client
@@ -221,48 +241,52 @@ public class SocketManager implements RequestDataReadListener{
     	}
     }
     
-    /**
-     * 监听socket数据传输
-     * @param socketListener
-     */
-    public void addSocketListener(SocketListener socketListener){
-    	this.socketListener = socketListener;
-    }
-    
-    /**
-     * 移除数据监听
-     */
-    public void removeSocketListener(){
-    	this.socketListener = null;
-    }
-    
+
     private void listenerConnection(Socket socket){
     	if ( this.socketListener!=null ) {
-        	this.socketListener.HaveClientConnectioned(socket);	
+        	this.socketListener.haveClientConnectioned(socket);	
 		}
     }
     
     private void listenerDataReading(Socket socket){
     	if ( this.socketListener!=null ) {
-        	this.socketListener.HaveClientReading(socket);
+        	this.socketListener.haveClientReading(socket);
 		}
     }
     
     private void listenerDataReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes){
     	if ( this.socketListener!=null ) {
-        	this.socketListener.HaveClientReadComplete(socket, headBytes, contentBytes);
+        	this.socketListener.haveClientReadComplete(socket, headBytes, contentBytes);
 		}
     }
     
     private void listenerReadDataTimeOut(Socket socket){
     	if ( this.socketListener!=null ) {
-        	this.socketListener.HaveClientReadTimeOut(socket);
+        	this.socketListener.haveClientReadTimeOut(socket);
 		}
     }
     
     private void listenerDisConnection(Socket socket){
     	if ( this.socketListener!=null ) {
-        	this.socketListener.HaveClientDisConnection(socket);
+        	this.socketListener.haveClientDisConnection(socket);
+		}
+    }
+
+    private void listenerServerWriteDataing(Socket socket){
+    	if ( this.socketListener!=null ) {
+        	this.socketListener.serverWriteDataing(socket);
+		}
+    }
+    
+    private void listenerServerWriteDataComplete(Socket socket){
+    	if ( this.socketListener!=null ) {
+        	this.socketListener.serverWriteDataComplete(socket);
+		}
+    }
+    
+    private void listenerServerWriteDataError(Socket socket, String err){
+    	if ( this.socketListener!=null ) {
+        	this.socketListener.serverWriteDataError(socket, err);
 		}
     }
 

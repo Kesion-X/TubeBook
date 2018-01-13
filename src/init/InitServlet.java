@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -108,19 +110,22 @@ public class InitServlet extends HttpServlet implements SocketListener {
 	}
 
 	@Override
-	public void HaveClientConnectioned(Socket socket) {
+	public void haveClientConnectioned(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("have client link");
+		ByteBuffer buf = ByteBuffer.allocate(1024);
+		
+		SocketManager.getSocketManager().sendDataToClientSocket(Charset.forName("utf-8").encode("key"), socket);
 	}
 
 	@Override
-	public void HaveClientReading(Socket socket) {
+	public void haveClientReading(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("client reading");
 	}
 
 	@Override
-	public void HaveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes) {
+	public void haveClientReadComplete(Socket socket, byte[] headBytes, byte[] contentBytes) {
 		// TODO Auto-generated method stub
 		try {
 			String headstr = new String(headBytes,"utf-8");
@@ -133,15 +138,33 @@ public class InitServlet extends HttpServlet implements SocketListener {
 	}
 
 	@Override
-	public void HaveClientReadTimeOut(Socket socket) {
+	public void haveClientReadTimeOut(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("ClientReadTimeOut");
 	}
 
 	@Override
-	public void HaveClientDisConnection(Socket socket) {
+	public void haveClientDisConnection(Socket socket) {
 		// TODO Auto-generated method stub
 		System.out.println("ClientDisConnection");
+	}
+
+	@Override
+	public void serverWriteDataing(Socket socket) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataing");
+	}
+
+	@Override
+	public void serverWriteDataComplete(Socket socket) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataComplete");
+	}
+
+	@Override
+	public void serverWriteDataError(Socket socket, String err) {
+		// TODO Auto-generated method stub
+		System.out.println("serverWriteDataError");
 	}
 
 }
